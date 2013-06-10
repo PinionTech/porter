@@ -1,0 +1,22 @@
+{
+  "name": "porter",
+  "version": "0.0.0",
+  "description": "A collection of services for rear-admiral",
+  "main": "porter.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -R spec --compilers coffee:coffee-script test.coffee",
+    "prepublish": "cake build",
+    "pretest": "cake build"
+  },
+  "repository": "",
+  "author": "david@banham.id.au",
+  "license": "BSD",
+  "dependencies": {
+    "portfinder": "~0.2.1",
+    "upnode": "~0.4.3"
+  },
+  "devDependencies": {
+    "mocha": "~1.10.0",
+    "coffee-script": "~1.6.3"
+  }
+}
