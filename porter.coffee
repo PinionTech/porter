@@ -12,6 +12,7 @@ butler =
 droneName = process.env.DRONE_NAME
 
 checkin = (remote) ->
+  return if process.env.PORTER_TESTING
   opts =
     hostname: remote.host
     port: remote.port

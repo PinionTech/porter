@@ -3,6 +3,7 @@ upnode = require 'upnode'
 net = require 'net'
 spawn = require('child_process').spawn
 SECRET = 'o87asdoa87sa'
+process.env.PORTER_TESTING = true
 describe 'auth', ->
   porter = null
   before () ->
@@ -12,14 +13,14 @@ describe 'auth', ->
   after () ->
     porter.kill()
   it 'should fail without a password', (done) ->
-    up = upnode.connect '7003', (remote, conn) ->
+    up = upnode.connect '7004', (remote, conn) ->
       try
         remote.port (err, res) ->
           console.log err, res
       catch error
         return done() if error instanceof Error
   it 'should auth correctly given a password', (done) ->
-    up = upnode.connect '7003', (remote, conn) ->
+    up = upnode.connect '7004', (remote, conn) ->
       remote.auth SECRET, (err, res) ->
         assert.equal err, null
         conn.emit 'up', res
