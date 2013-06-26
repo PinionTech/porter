@@ -41,3 +41,7 @@ describe 'freeport', ->
         throw new Error error
       tester.listen port, ->
         done()
+  it "shouldn't get the same port twice", ->
+    porter.authed.port (err, port1) ->
+      porter.authed.port (err, port2) ->
+        assert.notEqual port1, port2

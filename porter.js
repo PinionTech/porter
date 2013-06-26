@@ -60,7 +60,10 @@
 
   authed = {
     port: function(cb) {
-      return portfinder.getPort(cb);
+      return portfinder.getPort(function(err, port) {
+        portfinder.basePort = port + 1;
+        return cb(err, port);
+      });
     }
   };
 

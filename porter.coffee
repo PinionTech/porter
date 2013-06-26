@@ -39,7 +39,9 @@ listen = ->
 
 authed =
   port: (cb) ->
-    portfinder.getPort cb
+    portfinder.getPort (err, port) ->
+      portfinder.basePort = port + 1
+      cb err, port
 
 server = upnode (client, conn) ->
   @auth = (secret, cb) ->
