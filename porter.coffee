@@ -2,6 +2,7 @@ upnode = require 'upnode'
 portfinder = require 'portfinder'
 net = require 'net'
 http = require 'http'
+router = require './lib/router'
 PORT = 7004
 SECRET = process.env.PORTER_PASS ? 'o87asdoa87sa'
 
@@ -42,6 +43,8 @@ authed =
     portfinder.getPort (err, port) ->
       portfinder.basePort = port + 1
       cb err, port
+  updateRouting: (routes, cb) ->
+    router.writeFile routes, cb
 
 server = upnode (client, conn) ->
   @auth = (secret, cb) ->
