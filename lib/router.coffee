@@ -1,13 +1,19 @@
 NginxConfFile = require('nginx-conf').NginxConfFile
 path = require 'path'
 os = require 'os'
+fs = require 'fs'
 
 writeFile = (routingTable, cb) ->
   nginxPath = path.resolve 'nginx'
-  console.log "writeFile called, nginxPath is", nginxPath
-  console.log "nginx.conf is at", path.join(nginxPath, 'nginx.conf')
   NginxConfFile.create path.join(nginxPath, 'nginx.conf'), (err, conf) ->
-    console.log "err is", err
+
+    if err?
+      console.error "nginx configuration error", err
+      template = fs.createReadStream path.join nginxPath, 'template.nginx.conf'
+      configFile = fs.createWriteStream path.join nginxPath, 'nginx.conf'
+      template.pipe configFile
+      cb err
+
     #set system variables
     conf.nginx._remove 'worker_processes'
     conf.nginx._add 'worker_processes', os.cpus().length
@@ -62,10 +68,7 @@ writeFile = (routingTable, cb) ->
       server._add "location", "/"
       server.location._add "proxy_pass", "http://#{name}"
 
-    conf.on 'flushed', ->
-      console.log "Flushed!"
-      cb null
-    console.log "Finished generating file, about to flush"
     conf.flush()
+    cb null
 module.exports =
   writeFile: writeFile
