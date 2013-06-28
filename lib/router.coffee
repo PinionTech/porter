@@ -68,7 +68,6 @@ writeFile = (routingTable, cb) ->
       server._add "location", "/"
       server.location._add "proxy_pass", "http://#{name}"
 
-    conf.flush()
     cb null
 module.exports =
   writeFile: writeFile
