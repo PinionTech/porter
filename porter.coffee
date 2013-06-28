@@ -2,6 +2,7 @@ upnode = require 'upnode'
 portfinder = require 'portfinder'
 net = require 'net'
 http = require 'http'
+path = require 'path'
 spawn = require('child_process').spawn
 router = require './lib/router'
 PORT = 7004
