@@ -55,10 +55,11 @@ authed =
     portfinder.getPort (err, port) ->
       portfinder.basePort = port + 1
       cb err, port
-  updateRouting: (routes, cb) ->
+  updateRouting: (routes, cb, repeat) ->
     router.writeFile routes, (err) ->
       #kill is a misnomer, this instructs nginx to re-read it's configuration and gracefully retire it's workers. http://nginx.org/en/docs/control.html
       nginx.kill 'SIGHUP' unless err?
+      return @updateRouting routes, cb, true unless repeat?
       cb err
 
 server = upnode (client, conn) ->
