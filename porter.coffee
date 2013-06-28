@@ -59,7 +59,6 @@ authed =
     router.writeFile routes, (err) ->
       #kill is a misnomer, this instructs nginx to re-read it's configuration and gracefully retire it's workers. http://nginx.org/en/docs/control.html
       nginx.kill 'SIGHUP' unless err?
-      return @updateRouting routes, cb, true unless repeat?
       cb err
 
 server = upnode (client, conn) ->

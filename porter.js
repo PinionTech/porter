@@ -91,9 +91,6 @@
         if (err == null) {
           nginx.kill('SIGHUP');
         }
-        if (repeat == null) {
-          return this.updateRouting(routes, cb, true);
-        }
         return cb(err);
       });
     }
