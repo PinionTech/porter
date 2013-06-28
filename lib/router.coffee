@@ -12,7 +12,7 @@ writeFile = (routingTable, cb) ->
       template = fs.createReadStream path.join nginxPath, 'template.nginx.conf'
       configFile = fs.createWriteStream path.join nginxPath, 'nginx.conf'
       template.pipe configFile
-      cb err
+      return cb err
 
     #set system variables
     conf.nginx._remove 'worker_processes'
