@@ -2,6 +2,7 @@ upnode = require 'upnode'
 portfinder = require 'portfinder'
 net = require 'net'
 http = require 'http'
+spawn = require('child_process').spawn
 router = require './lib/router'
 PORT = 7004
 SECRET = process.env.PORTER_PASS ? 'o87asdoa87sa'
@@ -11,6 +12,16 @@ butler =
   port: process.env.BUTLER_PORT
   secret: process.env.BUTLER_SECRET
 droneName = process.env.DRONE_NAME
+
+nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+
+nginx.stdout.on 'data', (data) ->
+  console.log data.toString()
+nginx.stderr.on 'data', (data) ->
+  console.error data.toString()
+nginx.on 'close', (code, signal) ->
+  console.log "nginx closed with code #{code} and signal #{signal}"
+  nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
 
 checkin = (remote) ->
   return if process.env.PORTER_TESTING
@@ -44,7 +55,10 @@ authed =
       portfinder.basePort = port + 1
       cb err, port
   updateRouting: (routes, cb) ->
-    router.writeFile routes, cb
+    router.writeFile routes, (err) ->
+      #kill is a misnomer, this instructs nginx to re-read it's configuration and gracefully retire it's workers. http://nginx.org/en/docs/control.html
+      nginx.kill 'SIGHUP' unless err?
+      cb err
 
 server = upnode (client, conn) ->
   @auth = (secret, cb) ->
