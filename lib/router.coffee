@@ -36,7 +36,7 @@ writeFile = (routingTable, cb) ->
 
     if conf.nginx.http.upstream?
       if conf.nginx.http.upstream.length?
-        conf.nginx.http._remove('upstream') for server in conf.nginx.http.server
+        conf.nginx.http._remove('upstream') for upstream in conf.nginx.http.upstream
       else
         conf.nginx.http._remove('upstream')
 
