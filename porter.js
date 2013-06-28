@@ -30,6 +30,8 @@
 
   nginx = spawn("nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]);
 
+  console.log(["nginx", '-c', path.resolve(__dirname, 'nginx', 'nginx.conf')].join(' '));
+
   nginx.stdout.on('data', function(data) {
     return console.log(data.toString());
   });

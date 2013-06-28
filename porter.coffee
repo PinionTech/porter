@@ -15,6 +15,7 @@ butler =
 droneName = process.env.DRONE_NAME
 
 nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+console.log ["nginx", '-c', path.resolve(__dirname, 'nginx', 'nginx.conf')].join ' '
 
 nginx.stdout.on 'data', (data) ->
   console.log data.toString()
