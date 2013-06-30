@@ -1,73 +1,48 @@
-NginxConfFile = require('nginx-conf').NginxConfFile
+mu = require 'mu2'
 path = require 'path'
 os = require 'os'
 fs = require 'fs'
+nginxPath = path.resolve 'nginx'
+
+buildOpts = (routingTable) ->
+  options =
+    worker_processes: os.cpus().length
+    access_log: "#{path.join(nginxPath, 'access.log')}"
+    error_log: "#{path.join(nginxPath, 'error.log')}"
+    pidfile: path.join(nginxPath, 'nginx.pid')
+  for name, data of routingTable
+
+    options.server ?= []
+    server =
+      domain: data.domain
+      name: name
+    options.server.push server
+
+    options.upstream ?= []
+    upstream =
+      name: name
+      method: data.method ? "least_conn"
+      routes: []
+    for route in data.routes
+      upstream.routes.push
+        host: route.host
+        port: route.port
+    options.upstream.push upstream
+
+  return options
 
 writeFile = (routingTable, cb) ->
-  nginxPath = path.resolve 'nginx'
-  NginxConfFile.create path.join(nginxPath, 'nginx.conf'), (err, conf) ->
-
-    if err?
-      console.error "nginx configuration error", err
-      template = fs.createReadStream path.join nginxPath, 'template.nginx.conf'
-      configFile = fs.createWriteStream path.join nginxPath, 'nginx.conf'
-      template.pipe configFile
-      return cb err
-
-    #set system variables
-    conf.nginx._remove 'worker_processes'
-    conf.nginx._add 'worker_processes', os.cpus().length
-
-    conf.nginx._remove 'pid'
-    conf.nginx._add 'pid', path.join(nginxPath, 'nginx.pid')
-
-    conf.nginx.http._remove 'access_log'
-    conf.nginx.http._add 'access_log', "#{path.join(nginxPath, 'access.log')} main"
-
-    conf.nginx.http._remove 'error_log'
-    conf.nginx.http._add 'error_log', "#{path.join(nginxPath, 'access.log')} debug"
-
-    #burn down all existing servers
-    if conf.nginx.http.server?
-      if conf.nginx.http.server.length?
-        conf.nginx.http._remove('server') for server in conf.nginx.http.server
-      else
-        conf.nginx.http._remove('server')
-
-    if conf.nginx.http.upstream?
-      if conf.nginx.http.upstream.length?
-        conf.nginx.http._remove('upstream') for upstream in conf.nginx.http.upstream
-      else
-        conf.nginx.http._remove('upstream')
-
-    for name, data of routingTable
-
-      #add the upstream routing
-      conf.nginx.http._add "upstream", name
-
-      #get the right handle to the new upstream
-      if conf.nginx.http.upstream.length?
-        upstream = conf.nginx.http.upstream[conf.nginx.http.upstream.length - 1]
-      else
-        upstream = conf.nginx.http.upstream
-
-      upstream._add data.method ? "least_conn"
-      for route in data.routes
-        upstream._add "server", "#{route.host}:#{route.port}"
-
-      #add the server definition
-      conf.nginx.http._add "server"
-
-      if conf.nginx.http.server.length?
-        server = conf.nginx.http.server[conf.nginx.http.server.length - 1]
-      else
-        server = conf.nginx.http.server
-
-      server._add "listen", "7005"
-      server._add "server_name", data.domain
-      server._add "location", "/"
-      server.location._add "proxy_pass", "http://#{name}"
-
+  options = buildOpts routingTable
+  mustache = mu.compileAndRender(path.resolve(nginxPath, 'nginx.conf.mustache'), options)
+  output = fs.createWriteStream path.resolve(nginxPath, './nginx.conf')
+  mustache.pipe output
+  mustache.on 'error', (err) ->
+    cb err
+  output.on 'error', (err) ->
+    cb err
+  output.on 'close', ->
     cb null
+
 module.exports =
   writeFile: writeFile
+  buildOpts: buildOpts

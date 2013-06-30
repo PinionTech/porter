@@ -4,7 +4,7 @@
   "description": "A collection of services for rear-admiral",
   "main": "porter.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha -R spec --compilers coffee:coffee-script test.coffee",
+    "test": "./node_modules/.bin/mocha -R spec --compilers coffee:coffee-script",
     "prepublish": "cake build",
     "pretest": "cake build"
   },
@@ -14,7 +14,8 @@
   "dependencies": {
     "portfinder": "~0.2.1",
     "upnode": "~0.4.3",
-    "nginx-conf": "~0.1.0"
+    "mustache": "~0.7.2",
+    "mu2": "~0.5.19"
   },
   "devDependencies": {
     "mocha": "~1.10.0",

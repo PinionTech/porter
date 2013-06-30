@@ -7,7 +7,7 @@ process.env.PORTER_TESTING = true
 describe 'auth', ->
   porter = null
   before () ->
-    porter = spawn 'node', ['porter.js']
+    porter = spawn 'node', ['../porter.js']
     porter.on 'error', (err) ->
       throw new Error err
   after () ->
@@ -29,7 +29,7 @@ describe 'auth', ->
         assert.equal err, null
         done()
 describe 'freeport', ->
-  porter = require './porter.coffee'
+  porter = require '../porter.coffee'
   it 'should return a numeric port', ->
     porter.authed.port (err, port) ->
       assert.equal err, null
