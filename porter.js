@@ -85,6 +85,9 @@
     port: function(cb) {
       return portfinder.getPort(function(err, port) {
         portfinder.basePort = port + 1;
+        if (portfinder.basePort > 9000) {
+          portfinder.basePort = 8000;
+        }
         return cb(err, port);
       });
     },

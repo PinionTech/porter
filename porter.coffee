@@ -55,6 +55,7 @@ authed =
   port: (cb) ->
     portfinder.getPort (err, port) ->
       portfinder.basePort = port + 1
+      portfinder.basePort = 8000 if portfinder.basePort > 9000
       cb err, port
   updateRouting: (routes, cb, repeat) ->
     router.writeFile routes, (err) ->
