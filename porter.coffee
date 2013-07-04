@@ -20,9 +20,7 @@ butler =
   secret: process.env.BUTLER_SECRET
 droneName = process.env.DRONE_NAME
 
-router.writeFile {}, (err) ->
-  throw err if err?
-
+spawnNginx = ->
   nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
 
   nginx.stdout.on 'data', (data) ->
@@ -31,7 +29,11 @@ router.writeFile {}, (err) ->
     console.error "Stderr from nginx", data.toString()
   nginx.on 'close', (code, signal) ->
     console.log "nginx closed with code #{code} and signal #{signal}"
-    nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+    spawnNginx()
+
+router.writeFile {}, (err) ->
+  throw err if err?
+  spawnNginx()
 
 checkin = (remote) ->
   return if process.env.PORTER_TESTING
