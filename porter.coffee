@@ -35,6 +35,26 @@ router.writeFile {}, (err) ->
   throw err if err?
   spawnNginx()
 
+getRoutingTable = (remote) ->
+  return if process.env.PORTER_TESTING
+  opts =
+    hostname: remote.host
+    port: remote.port
+    path: "/routingTable"
+    auth: "porter:#{remote.secret}"
+  connection = http.get opts, (res) ->
+    cleanup new Error "Failed to get routing table, status: #{res.statusCode}" if res.statusCode isnt 200
+    @socket.end()
+    resp = ''
+    res.on 'data', (data) ->
+      resp += data.toString()
+    res.on 'end', ->
+      routingTable = JSON.parse res
+      router.writeFile routingTable, (err) ->
+        cleanup err if err?
+  .on "error", (e) ->
+    cleanup new Error e
+
 checkin = (remote) ->
   return if process.env.PORTER_TESTING
   opts =
@@ -57,6 +77,7 @@ checkin = (remote) ->
 listen = ->
   server.listen PORT
   checkin(butler)
+  getRoutingTable(butler)
   setInterval ->
     checkin(butler)
   , 60 * 1000
