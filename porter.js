@@ -100,7 +100,7 @@
         return cb(err, port);
       });
     },
-    updateRouting: function(routes, cb, repeat) {
+    updateRouting: function(routes, cb) {
       return router.writeFile(routes, function(err) {
         if (err == null) {
           nginx.kill('SIGHUP');

@@ -65,7 +65,7 @@ authed =
       portfinder.basePort = port + 1
       portfinder.basePort = 8000 if portfinder.basePort > 9000
       cb err, port
-  updateRouting: (routes, cb, repeat) ->
+  updateRouting: (routes, cb) ->
     router.writeFile routes, (err) ->
       #kill is a misnomer, this instructs nginx to re-read it's configuration and gracefully retire it's workers. http://nginx.org/en/docs/control.html
       nginx.kill 'SIGHUP' unless err?
