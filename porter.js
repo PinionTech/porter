@@ -69,7 +69,7 @@
       path: "/routingTable",
       auth: "porter:" + remote.secret
     };
-    return connection = http.get(opts, function(res) {
+    connection = http.get(opts, function(res) {
       var responseText;
       if (res.statusCode !== 200) {
         cleanup(new Error("Failed to get routing table, status: " + res.statusCode));
@@ -90,6 +90,12 @@
       });
     }).on("error", function(e) {
       return cleanup(new Error(e));
+    });
+    return connection.on('socket', function(socket) {
+      socket.setTimeout(10 * 1000);
+      return socket.on('timeout', function() {
+        return cleanup(new Error("getRoutingTable timeout"));
+      });
     });
   };
 

@@ -55,6 +55,11 @@ getRoutingTable = (remote) ->
   .on "error", (e) ->
     cleanup new Error e
 
+  connection.on 'socket', (socket) ->
+    socket.setTimeout(10 * 1000)
+    socket.on 'timeout', ->
+      cleanup new Error "getRoutingTable timeout"
+
 checkin = (remote) ->
   return if process.env.PORTER_TESTING
   opts =
