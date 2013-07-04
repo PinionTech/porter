@@ -8,21 +8,30 @@ router = require './lib/router'
 PORT = 7004
 SECRET = process.env.PORTER_PASS ? 'o87asdoa87sa'
 
+nginx = null
+
+cleanup = (err) ->
+  nginx.kill() if nginx?
+  throw err
+
 butler =
   host: process.env.BUTLER_HOST
   port: process.env.BUTLER_PORT
   secret: process.env.BUTLER_SECRET
 droneName = process.env.DRONE_NAME
 
-nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+router.writeFile {}, (err) ->
+  throw err if err?
 
-nginx.stdout.on 'data', (data) ->
-  console.log "Stdout from nginx:", data.toString()
-nginx.stderr.on 'data', (data) ->
-  console.error "Stderr from nginx", data.toString()
-nginx.on 'close', (code, signal) ->
-  console.log "nginx closed with code #{code} and signal #{signal}"
   nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+
+  nginx.stdout.on 'data', (data) ->
+    console.log "Stdout from nginx:", data.toString()
+  nginx.stderr.on 'data', (data) ->
+    console.error "Stderr from nginx", data.toString()
+  nginx.on 'close', (code, signal) ->
+    console.log "nginx closed with code #{code} and signal #{signal}"
+    nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
 
 checkin = (remote) ->
   return if process.env.PORTER_TESTING
@@ -32,16 +41,16 @@ checkin = (remote) ->
     path: "/checkin/#{droneName}"
     auth: "porter:#{remote.secret}"
   connection = http.get opts, (res) ->
-    throw new Error "Checkin failed with status #{res.statusCode}" if res.statusCode != 200
+    cleanup new Error "Checkin failed with status #{res.statusCode}" if res.statusCode != 200
     console.log "Checked in with #{remote.host}:#{remote.port}"
     @socket.end()
   .on "error", (e) ->
-    throw new Error e
+    cleanup new Error e
 
   connection.on 'socket', (socket) ->
     socket.setTimeout(10 * 1000)
     socket.on 'timeout', ->
-      throw new Error "Checkin timeout"
+      cleanup new Error "Checkin timeout"
 
 listen = ->
   server.listen PORT
