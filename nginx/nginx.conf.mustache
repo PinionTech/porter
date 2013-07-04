@@ -25,6 +25,13 @@ http {
       {{/routes}}
     }
     {{/upstream}}
+    server {
+      listen 7005;
+      location /health {
+        return 200;
+        access_log off;
+      }
+    }
     {{#server}}
     server {
       listen 7005;
