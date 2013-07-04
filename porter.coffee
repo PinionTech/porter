@@ -15,12 +15,11 @@ butler =
 droneName = process.env.DRONE_NAME
 
 nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
-console.log ["nginx", '-c', path.resolve(__dirname, 'nginx', 'nginx.conf')].join ' '
 
 nginx.stdout.on 'data', (data) ->
-  console.log data.toString()
+  console.log "Stdout from nginx:", data.toString()
 nginx.stderr.on 'data', (data) ->
-  console.error data.toString()
+  console.error "Stderr from nginx", data.toString()
 nginx.on 'close', (code, signal) ->
   console.log "nginx closed with code #{code} and signal #{signal}"
   nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]

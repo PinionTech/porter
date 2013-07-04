@@ -30,14 +30,12 @@
 
   nginx = spawn("nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]);
 
-  console.log(["nginx", '-c', path.resolve(__dirname, 'nginx', 'nginx.conf')].join(' '));
-
   nginx.stdout.on('data', function(data) {
-    return console.log(data.toString());
+    return console.log("Stdout from nginx:", data.toString());
   });
 
   nginx.stderr.on('data', function(data) {
-    return console.error(data.toString());
+    return console.error("Stderr from nginx", data.toString());
   });
 
   nginx.on('close', function(code, signal) {
