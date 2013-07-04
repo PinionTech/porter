@@ -44,11 +44,11 @@ getRoutingTable = (remote) ->
     auth: "porter:#{remote.secret}"
   connection = http.get opts, (res) ->
     cleanup new Error "Failed to get routing table, status: #{res.statusCode}" if res.statusCode isnt 200
-    resp = ''
+    responseText = ''
     res.on 'data', (data) ->
-      resp += data.toString()
+      responseText += data.toString()
     res.on 'end', ->
-      routingTable = JSON.parse res
+      routingTable = JSON.parse responseText
       router.writeFile routingTable, (err) ->
         cleanup err if err?
   .on "error", (e) ->

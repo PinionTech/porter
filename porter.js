@@ -70,17 +70,17 @@
       auth: "porter:" + remote.secret
     };
     return connection = http.get(opts, function(res) {
-      var resp;
+      var responseText;
       if (res.statusCode !== 200) {
         cleanup(new Error("Failed to get routing table, status: " + res.statusCode));
       }
-      resp = '';
+      responseText = '';
       res.on('data', function(data) {
-        return resp += data.toString();
+        return responseText += data.toString();
       });
       return res.on('end', function() {
         var routingTable;
-        routingTable = JSON.parse(res);
+        routingTable = JSON.parse(responseText);
         return router.writeFile(routingTable, function(err) {
           if (err != null) {
             return cleanup(err);
