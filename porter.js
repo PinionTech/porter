@@ -81,12 +81,11 @@
       return res.on('end', function() {
         var routingTable;
         routingTable = JSON.parse(res);
-        router.writeFile(routingTable, function(err) {
+        return router.writeFile(routingTable, function(err) {
           if (err != null) {
             return cleanup(err);
           }
         });
-        return this.socket.end();
       });
     }).on("error", function(e) {
       return cleanup(new Error(e));
@@ -108,8 +107,7 @@
       if (res.statusCode !== 200) {
         cleanup(new Error("Checkin failed with status " + res.statusCode));
       }
-      console.log("Checked in with " + remote.host + ":" + remote.port);
-      return this.socket.end();
+      return console.log("Checked in with " + remote.host + ":" + remote.port);
     }).on("error", function(e) {
       return cleanup(new Error(e));
     });

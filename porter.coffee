@@ -51,7 +51,6 @@ getRoutingTable = (remote) ->
       routingTable = JSON.parse res
       router.writeFile routingTable, (err) ->
         cleanup err if err?
-      @socket.end()
   .on "error", (e) ->
     cleanup new Error e
 
@@ -65,7 +64,6 @@ checkin = (remote) ->
   connection = http.get opts, (res) ->
     cleanup new Error "Checkin failed with status #{res.statusCode}" if res.statusCode != 200
     console.log "Checked in with #{remote.host}:#{remote.port}"
-    @socket.end()
   .on "error", (e) ->
     cleanup new Error e
 
