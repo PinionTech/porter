@@ -74,7 +74,6 @@
       if (res.statusCode !== 200) {
         cleanup(new Error("Failed to get routing table, status: " + res.statusCode));
       }
-      this.socket.end();
       resp = '';
       res.on('data', function(data) {
         return resp += data.toString();
@@ -82,11 +81,12 @@
       return res.on('end', function() {
         var routingTable;
         routingTable = JSON.parse(res);
-        return router.writeFile(routingTable, function(err) {
+        router.writeFile(routingTable, function(err) {
           if (err != null) {
             return cleanup(err);
           }
         });
+        return this.socket.end();
       });
     }).on("error", function(e) {
       return cleanup(new Error(e));
