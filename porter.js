@@ -24,7 +24,7 @@
 
   PIDPATH = path.resolve(__dirname, '..', '..', 'pids');
 
-  router.setPIDPATH = PIDPATH;
+  router.setPIDPATH(PIDPATH);
 
   try {
     fs.mkdirSync(PIDPATH);

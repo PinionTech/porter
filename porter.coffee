@@ -9,7 +9,7 @@ router = require './lib/router'
 PORT = 7004
 SECRET = process.env.PORTER_PASS ? 'o87asdoa87sa'
 PIDPATH = path.resolve __dirname, '..', '..', 'pids'
-router.setPIDPATH = PIDPATH
+router.setPIDPATH PIDPATH
 try
   fs.mkdirSync PIDPATH
 
