@@ -50,8 +50,11 @@
   spawnNginx = function() {
     return fs.readFile(path.join(PIDPATH, 'porternginx.pid'), function(err, data) {
       var pid;
-      if (typeof pid !== "undefined" && pid !== null) {
+      if (data != null) {
         pid = data.toString();
+      }
+      if (pid != null) {
+        console.log("Killing stale nginx process with pid", pid);
       }
       if (pid != null) {
         process.kill(pid);

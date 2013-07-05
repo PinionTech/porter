@@ -27,7 +27,8 @@ droneName = process.env.DRONE_NAME
 
 spawnNginx = ->
   fs.readFile (path.join PIDPATH, 'porternginx.pid'), (err, data) ->
-    pid = data.toString() if pid?
+    pid = data.toString() if data?
+    console.log "Killing stale nginx process with pid", pid if pid?
     process.kill(pid) if pid?
     nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
 
