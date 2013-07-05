@@ -3,13 +3,14 @@ path = require 'path'
 os = require 'os'
 fs = require 'fs'
 nginxPath = path.resolve 'nginx'
+PIDPATH = ''
 
 buildOpts = (routingTable) ->
   options =
     worker_processes: os.cpus().length
-    access_log: "#{path.join(nginxPath, 'access.log')}"
-    error_log: "#{path.join(nginxPath, 'error.log')}"
-    pidfile: path.join(nginxPath, 'nginx.pid')
+    access_log: path.join(nginxPath, 'access.log')
+    error_log: path.join(nginxPath, 'error.log')
+    pidfile: path.join(PIDPATH, 'porternginx.pid')
   for name, data of routingTable
 
     options.server ?= []
@@ -46,3 +47,5 @@ writeFile = (routingTable, cb) ->
 module.exports =
   writeFile: writeFile
   buildOpts: buildOpts
+  setPIDPATH: (input) ->
+    PIDPATH = input

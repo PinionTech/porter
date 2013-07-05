@@ -3,10 +3,15 @@ portfinder = require 'portfinder'
 net = require 'net'
 http = require 'http'
 path = require 'path'
+fs = require 'fs'
 spawn = require('child_process').spawn
 router = require './lib/router'
 PORT = 7004
 SECRET = process.env.PORTER_PASS ? 'o87asdoa87sa'
+PIDPATH = path.resolve __dirname, '..', '..', 'pids'
+router.setPIDPATH = PIDPATH
+try
+  fs.mkdirSync PIDPATH
 
 nginx = null
 
@@ -21,19 +26,21 @@ butler =
 droneName = process.env.DRONE_NAME
 
 spawnNginx = ->
-  nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
+  fs.readFile (path.join PIDPATH, 'porternginx.pid'), (err, data) ->
+    pid = data.toString() if pid?
+    process.kill(pid) if pid?
+    nginx = spawn "nginx", ['-c', path.resolve(__dirname, 'nginx', 'nginx.conf')]
 
-  nginx.stdout.on 'data', (data) ->
-    console.log "Stdout from nginx:", data.toString()
-  nginx.stderr.on 'data', (data) ->
-    console.error "Stderr from nginx", data.toString()
-  nginx.on 'close', (code, signal) ->
-    console.log "nginx closed with code #{code} and signal #{signal}"
-    spawnNginx()
-
-router.writeFile {}, (err) ->
-  throw err if err?
-  spawnNginx()
+    nginx.stdout.on 'data', (data) ->
+      console.log "Stdout from nginx:", data.toString()
+    nginx.stderr.on 'data', (data) ->
+      console.error "Stderr from nginx", data.toString()
+    nginx.on 'close', (code, signal) ->
+      console.log "nginx closed with code #{code} and signal #{signal}"
+      spawnNginx()
+    nginx.on 'error', (err) ->
+      console.error 'Error on nginx process', err
+      spawnNginx()
 
 getRoutingTable = (remote) ->
   return if process.env.PORTER_TESTING
@@ -86,6 +93,10 @@ listen = ->
   setInterval ->
     checkin(butler)
   , 60 * 1000
+
+  router.writeFile {}, (err) ->
+    throw err if err?
+    spawnNginx()
 
 authed =
   port: (cb) ->

@@ -1,5 +1,6 @@
 assert = require 'assert'
 router = require '../lib/router.coffee'
+router.setPIDPATH './'
 os = require 'os'
 describe 'routes', ->
   routingTable =
